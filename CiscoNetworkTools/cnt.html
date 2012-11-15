@@ -6,29 +6,39 @@
 	</script>
 
 	<style>
+		body{
+			background:     url(./ios-linen.jpg) repeat-y;
+		}
+
 		header{
 			text-align:     center;
 			margin:         0px;
 			padding:        10px;
 			text-decoration:none;
-			color:          #3D77FF;
+			color:          #15AFD1;
 			font-size:      40pt;
 			font-style:     normal;
 			font-family:    "Courier New";
 			letter-spacing: -5px;
 		}
+		
+		hr{
+			color:          #387D8C;
+			border:         none;
+			background-color:#387D8C;
+			height:         1px;
+		}
 
 		#menu{
-			margin-top:     10px;
+			margin-top:     65px;
 			margin-left:    0px;
 			padding-top:    15px;
-			padding-right:  25px;
+			padding-right:  35px;
 			padding-left:   30px;
 			min-height:     200px;
 			min-width:      150px;
 			width:          150px;
-			border-right:   5px ridge #3D77FF;
-			border-bottom:  5px ridge #3D77FF;
+			border-right:   5px ridge #387D8C;
 			float:          left;
 		}
 
@@ -37,7 +47,7 @@
 			padding:        0px;
 			text-align:     center;
 			position:       relative;
-			color:          #0048F0;
+			color:          #5BB5CC;
 			font-size:      12pt;
 			font-style:     normal;
 			font-family:    "Courier New";
@@ -45,15 +55,36 @@
 			font-weight:    bold;
 		}
 
+		a{
+			text-decoration:none;
+			margin:         0px;
+			padding:        0px;
+			color:          #5BB5CC;
+		}
+
 		#workflow{
-			border-top:     1px ridge #3D77FF;
 			height:         200px;
 			min-height:     150px;
 			margin-left:    241px;
 			margin-right:   20px;
-			padding-top:    20px;
+			padding-top:    1px;
+			color:          #94C6D6;
+			text-align:     center;
+		}
+
+		#data{
+			position:       relative;
+			height:         300px;
+			width:          800px;
+			margin:         10px auto;
+			padding:        10px;
+			border:         2px dashed #37778C;
+			border-radius:  25px 25px 25px 25px;
+			background:     url(./debut_light.png);
+			color:          #2C3B40;
 
 		}
+
 	</style>
 
 </head>
@@ -61,16 +92,19 @@
 	<header>
 		CISCO Network Tools
 	</header>
-
+	<hr/>
 	<div id="menu">
 		<ul>
-			<li>menu item 1</li>
-			<li>menu item 2</li>
+			<li><a href="#">menu item 1</a></li>
+			<li><a href="#">menu item 2</a></li>
 		</ul>
 	</div>
 
 	<div id="workflow">
-		WORKFLOW
+		<h3>WORKFLOW 1</h3>
+		<div id="data">
+			DATA
+		</div>
 	</div>
 
 </body>
