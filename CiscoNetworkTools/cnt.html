@@ -2,19 +2,9 @@
 <html>
 <head>
 <title>CISCO Network Tools</title>
-<meta name="description" content="one ip calc">
-<meta name="keywords" content="ip calc, vova romanenko, dostal prosto menya">
-	<!--JS  block-->
-	<script type="text/javascript">
-		//dec to hex converter
-		var calc = function(cfrm){
-			var __ip = cfrm.ip_addr.value; // ip for calc
-			var regexp = new RegExp();
-
-
-		}
-	</script>
-	<!--end JS block-->
+<meta name="description" content="one ip calc"/>
+<meta name="keywords" content="ip calc, vova romanenko, dostal prosto menya"/>
+<meta charset="utf-8" />
 
 	<!--CSS block-->
 	<style>
@@ -26,6 +16,7 @@
 			text-align:     center;
 			margin:         0px;
 			padding:        10px;
+			padding-bottom: 0px;
 			text-decoration:none;
 			color:          #15AFD1;
 			font-size:      40pt;
@@ -58,7 +49,6 @@
 			margin:         1px;
 			padding:        0px;
 			text-align:     center;
-			position:       relative;
 			color:          #5BB5CC;
 			font-size:      12pt;
 			font-style:     normal;
@@ -74,11 +64,20 @@
 			color:          #5BB5CC;
 		}
 
+		header > h3{
+			text-align:     center;
+			font-size:      19pt;
+			padding:		0px;
+			margin:         0px;
+			letter-spacing: -3px;
+			font-style:     normal;
+			font-weight:    lighter;
+			font-family:    "Courier New";
+		}
+
 		#workflow{
-			height:         200px;
 			min-height:     150px;
-			margin-left:    250px;
-			margin-right:   20px;
+			margin:          0px auto;
 			padding-top:    1px;
 			color:          #94C6D6;
 			text-align:     center;
@@ -86,9 +85,7 @@
 		}
 
 		.data{
-			position:       relative;
 			min-height:     150px;
-			height:         200px;
 			margin:         10px auto;
 			padding:        10px;
 			border:         2px solid #37778C;
@@ -98,87 +95,391 @@
 		}
 
 		footer{
-			clear:          both;
+			border-top:     1px solid #387D8C;
 			text-align:     center;
 			color:          #94C6D6;
-			margin-top:     100px;
+			margin:         20px 120px 15px;
+			
+		}
+
+		.clr{
+			clear:   both;
+			padding: 0px;
+			margin:  0px;
+			border:  0px;
+			
 		}
 
 		.head1{
-			text-align: center;
+			text-align:  center;
 			font-family: Helvetica sans serif;
-			font-style:  bold;
+			font-style:  normal;
 			font-size:   15pt;
 
 		}
 
 		.calc_field{
 			text-align: left;
-			padding: 0px;
-			margin: 0px;
-			border: 0px;
+			padding:    0px;
+			margin:     0px 15px 0px;
+			border:     0px;
 		}
 
 		.in{
 
 		}
 
-		button{
-			color: #2C3B40;
-			font-weight: bold;
-			padding: 5px;
-			border: 1px solid #94C6D6;
+		.btn{
+			color:         #2C3B40;
+			font-weight:   bold;
+			padding:       5px;
+			border:        1px solid #94C6D6;
 			border-radius: 0px;
-			box-shadow: 2px 2px #387D8C;
+			box-shadow:    2px 2px #387D8C;
 		}
 
-		button > a{
-			color: #2C3B40;
+		.btn:hover{
+			cursor: pointer;
 		}
+
+		textarea{
+			resize: none;
+			
+		}
+
+		.info{
+			text-align:     left;
+			font-size:      10pt;
+			font-style:     normal;
+			font-family:    "Courier New";
+			letter-spacing: 1px;
+			padding:        0px;
+			margin:         0px 15px 8px;
+			border:         0px;
+		}
+
+		table{
+			background-color: transparent;
+		}
+
 
 	</style>
-
 	<!--end CSS block-->
 
+<!--JS  block-->
+	<script type="text/javascript">
+		
+		var rstNBFL = function(cfrm){
+			cfrm.ip_addr0.value = "";
+			cfrm.ip_addr1.value = "";
+			cfrm.ip_addr2.value = "";
+			cfrm.ip_addr3.value = "";
+			cfrm.smask.value = "";
+			cfrm.outinf.value = "";
+			console.log("Reset formNBFL");
+		}
+
+		var addRazr = function(ipConv,base){
+			if(base == 16){
+				return "0x"+ ipConv
+			} 
+			else{
+				if(ipConv.length == 8) return ipConv;
+				var zeroCounter = 8 - ipConv.length;
+				for(var i=0; i<zeroCounter; ++i)
+					ipConv = "0" + ipConv;
+				return ipConv;
+			}
+		}
+
+		var ipConverter = function(ip,base){ // return ip like a string of a bits
+			var __binIP = addRazr((ip[0]).toString(base),base) + "." + addRazr((ip[1]).toString(base),base) + 
+							"." + addRazr((ip[2]).toString(base),base) + "." + addRazr((ip[3]).toString(base),base);
+			console.log("call stack ipConverter(ip,base)");
+			return __binIP;
+		}
+
+		var bitSubMask = function(mask){ // return a bit subnet mask from cidr notation
+			var bitMask ="";
+			for(var i=0; i<4; ++i){
+				for(var j=0; j<8; ++j){
+					if(mask!=0){
+						bitMask += "1";
+						--mask;
+					}
+					else{
+						bitMask += "0";
+					}
+				}
+				bitMask += (i!=3)?".":"";
+			}
+			console.log("call stack trace: ipSubnet(...)");
+			return bitMask;
+		}
+
+		var decSubMask = function (mask){ // return dec subnet mask from a cidr notation
+			var decMask = "";
+			var d = 0;
+			var r = mask%8;
+			var decOctetValue = [0,128,192,224,240,248,252,254,255];
+			var octet = 4;
+			//drunk code
+			d = (r == 0)? mask/8:(mask-r)/8;
+			while(octet != 0){
+				if(d != 0){
+					decMask += "255";
+					--d;
+				}
+				else if(r != 0){
+					decMask += decOctetValue[r].toString();
+					r = 0;
+				}
+				else{
+					decMask += "0";
+				}
+				decMask += (octet > 1)? ".":"";
+				--octet;
+			}
+			console.log("call stack trace: decSubMask(...)");
+			return decMask;
+		}
+
+		var ipSNNotation = function(mask, netClass,cidr){
+			// return subnet bit mask like a string (nnnn,sssss,hhhh) where n - net, s -subnet 
+			// h - host part of address;
+			//dirty hack
+			var __bSMask = "";
+			var network = 0;
+			var subnet = 0;
+			if(!cidr){
+				switch(netClass){
+					case "A" : subnet = mask - 8; network = 8; break;
+					case "B" : subnet = mask - 16; network = 16; break;
+					case "C" : subnet = mask - 24; network = 24; break;
+					default  : subnet = 0;
+				}
+			}
+			else{
+				network = mask;
+				subnet = 0;
+			}
+
+			for(var i=0; i<4; ++i){
+				for(var j=0; j<8; ++j){
+					if(network!=0){
+						__bSMask += "n";
+						--network;
+					}
+					else if(subnet!=0){
+						__bSMask += "s";
+						--subnet;
+					}
+					else{
+						__bSMask += "h";
+					}
+				}
+				__bSMask += (i!=3)?".":"";
+			}
+
+			console.log("call stack trace: ipSNNotation");
+			return __bSMask;
+		}
+
+		var shNum = function(mask,v,netClass){//how many subnets and hosts per sumbnet will be?
+			var maxBits = 32;
+			var netBits = (netClass == "A")?8:(netClass == "B")?16:24;
+			var sbnBits = mask - netBits;
+			var hostBits = maxBits - netBits - sbnBits;
+			if(v == "h") v = Math.pow(2,hostBits) - 2;
+			if(v == "s") v = Math.pow(2,sbnBits);
+			return v;
+		}
+
+		var negSM = function(mask,base){ // calculate inverse subnet mask
+			var negMask ="";
+			mask = decSubMask(mask);
+			var arr = mask.split('.');
+			for(v in arr){
+				arr[v] = 255 - parseInt(arr[v],10);
+			}
+
+			if(base == 2){
+				for(v in arr){
+					arr[v] = arr[v].toString(2);
+					if(arr[v].length < 8){
+						var tmp=arr[v];
+						arr[v]="";
+						for(var i=0; i<(8-tmp.length); ++i)
+							arr[v]+="0";
+						arr[v]+=tmp;
+					}
+				}
+			}
+			negMask = arr.join(".");
+
+			console.log("call stack trace: negSM(...,...)");
+			return negMask;
+		}
+
+		var calc = function(cfrm){
+			//set parameters
+			var __ip = new Array(4);
+			__ip[0] = parseInt(cfrm.ip_addr0.value,10);
+			__ip[1] = parseInt(cfrm.ip_addr1.value,10);
+			__ip[2] = parseInt(cfrm.ip_addr2.value,10);
+			__ip[3] = parseInt(cfrm.ip_addr3.value,10);
+			var __smask = parseInt(cfrm.smask.value,10);
+			//validate ipaddress
+			if(!__ip.every(function(addr){ return addr >= 0 && addr <= 255})) {
+				console.log("IP validate error: stack trace - call __ip.every(...)");
+				return 0;
+			}
+			if(isNaN(__smask) || __smask < 8 || __smask > 32) {
+					alert("Subnet mask should be over or equal 8");console.log("Invalid subnet mask"); return 0;}
+			//check CIDR checkbox anf set classful or cidr calculating
+			var __host = 32 - __smask;
+			var cidr = cfrm.classCheck.checked;
+			var netClass ="undefined";
+			if(__ip[0] >= 1   && __ip[0] <= 126 ) netClass = "A";
+			if(__ip[0] >= 128 && __ip[0] <= 191 ) netClass = "B";
+			if(__ip[0] >= 192 && __ip[0] <= 223 ) netClass = "C";
+			if( netClass == "A" && !cidr && __smask < 8) {
+				alert("Subnet mask for Class " + netClass + " should be over or equal 8");
+				console.log("Invalid classful subnet mask"); 
+				return 0;
+			}
+			if( netClass == "B" && !cidr && __smask < 16) {
+				alert("Subnet mask for Class " + netClass + " should be over or equal 16");
+				console.log("Invalid classful subnet mask"); 
+				return 0;
+			}
+			if( netClass == "C" && !cidr && __smask < 24) {
+				alert("Subnet mask for Class " + netClass + " should be over or equal 24");
+				console.log("Invalid classful subnet mask"); 
+				return 0;
+			}
+			//print computed information
+			cfrm.outinf.value = "IP Address:  " + __ip[0].toString()+"."+__ip[1].toString()+"."  + 
+								__ip[2].toString() +"."+__ip[3].toString()+" /"+ __smask.toString() + "  Class:" 
+								+ netClass +"\n";
+			cfrm.outinf.value += "IP Address Binary:  " + ipConverter(__ip,2) + " \nIP Address Hex:  "+ 
+								ipConverter(__ip,16) + " / " + "0x"+__smask.toString(16) +" \n";
+			cfrm.outinf.value += "Host Bits: " +__host.toString() + "\n";
+			cfrm.outinf.value += "Mask Bits: " +__smask.toString() + "\n";
+			cfrm.outinf.value += "Decimal Bit Mask: " + decSubMask(__smask) + "\n";
+			cfrm.outinf.value += "Subnet Bit Mask: "+ bitSubMask(__smask) +"\n";
+			cfrm.outinf.value += "Mask(n - net, s - subnet, h - host): " + ipSNNotation(__smask,netClass,cidr) + "\n";
+			cfrm.outinf.value += "Inverse Bit Subnet Mask: " + negSM(__smask,2) + "\n";
+			cfrm.outinf.value += "Inverse Dec Subnet Mask: " + negSM(__smask,10) + "\n";
+			cfrm.outinf.value += "Number of Subnets: "+ shNum(__smask,"s",netClass) +" \n";
+			cfrm.outinf.value += "Hosts per Subnet: " + shNum(__smask,"h",netClass) + "\n";
+			
+			/* 
+			
+			
+			
+			
+			
+			
+			cfrm.outinf.value += "Network Address: " +  + "\n";
+			cfrm.outinf.value += "Broadcast Address: " + "\n";
+			cfrm.outinf.value += "Valid Host Range: " + "\n";
+*/
+			return 1;
+		}
+	</script>
+	<!--end JS block-->
 </head>
 <body>
 	<header>
-		CISCO Network Tools
+		CISCO Network Tools<br/>
+		<h3> IP calc for rvawork blog</h3>
 	</header>
+	
 	<hr/>
 	
-	<!--Navigation swither-->
-	<div id="menu">
-		<ul>
-			
-		</ul>
-	</div>
-	<!--end Navigation swither-->
-
+	
 	<!--Workflow area-->
 	<div id="workflow">
-		<h3>WORKFLOW 1</h3>
+
 		<div class="data">
-			<p class="head1"> IP calc for rvawork blog </p>
+			<p class="head1"> Classful and CIDR Subnet Calculator </p>
 			<hr/>
 			<div class="calc_field">
 				<form>
-				<label for="ip_addr"> IP Address</label><input type="text" name="ip_addr"/> 
-				<button onclick="calc(this.form)">calc</button>
+				<label for="ip_addr0"> IP Address </label>&nbsp;&nbsp;&nbsp;
+				<input type="text" size="3" name="ip_addr0"/>.
+				<input type="text" size="3" name="ip_addr1"/>.
+				<input type="text" size="3" name="ip_addr2"/>.
+				<input type="text" size="3" name="ip_addr3"/>/
+				<input type="text" size="2" name="smask" />
+				<button onclick="calc(this.form)" type="button" class="btn"> calculate </button>
+				<button onclick="rstNBFL(this.form)" type="button" class="btn"> reset </button>
+				&nbsp;&nbsp;&nbsp;
+				<label for="classful">CIDR</label>
+				<input type="checkbox" name="classCheck"/>
+				&nbsp;&nbsp;&nbsp;
 				<br/>
-				<textarea size="15,15" readonly="readonly" resize="false"></textarea> 
+				<textarea cols="72" rows="15" readonly="readonly" disabled name="outinf"></textarea> 
 				</form>
 			</div>
 			<hr/>
+			<hr/>
+			<div class="info">
+				<p class="head1">Information</p>
+				IP Multicast address ranges <br/>
 
+				All multicast addresses can easily be recognized because they start with the bit pattern "1110". <br/>
+
+				224.0.0.0 - 224.0.0.255 Well-known multicast addresses, control channels  <br/>
+				224.0.1.0 - 238.255.255.255 Globally-scoped (Internet-wide) multicast addresses<br/> 
+				239.0.0.0 - 239.255.255.255 Local multicast addresses <br/>
+				Special and private address ranges<br/>
+<br/>
+				Private address ranges are not routed on the Internet and can be freely allocated in any private network. NAT (network address translation) is required when connecting such a network to the Internet. <br/>
+
+				Private network addresses (RFC1597/RFC1918 addresses): <br/>
+				10.0.0.0 - 10.255.255.255 A 24-bit block, /8, class A network<br/> 
+				172.16.0.0 - 172.31.255.255 A 20-bit block, /12, set of 16 contiguous class B network numbers <br/>
+				192.168.0.0 - 192.168.255.255 A 16-bit block, /16, set of 255 contiguous class C network numbers <br/>
+<br/>
+				Special addresses: <br/>
+				127.0.0.0 - 127.255.255.255 Special address range for the localhost. You can normally not use those addresses for anything else. 127.0.0.1 is generally assigned to the loopback device <br/>
+				0.0.0.0 Special host address commonly reserved for the default route<br/><br/> 
+				Overview of common subnets and masks<br/>
+				<table>
+				<thead>
+					<tr><td>Mask</td> <td>Hosts</td>  <td>Usable</td> <td>Netmask</td>          <td>Hex Mask</td></tr>
+				</thead>
+				<tbody>
+					<tr><td>/30</td>  <td>4</td>      <td>2</td>      <td>255.255.255.252</td>  <td>fffffffc</td>  <td>this is 1/64 of a Class C net</td></tr>
+					<tr><td>/29</td>  <td>8</td>      <td>6</td>      <td>255.255.255.248</td>  <td>fffffff8</td>  <td>this is 1/32 of a Class C net</td></tr>
+					<tr><td>/28</td>  <td>16</td>     <td>14</td>     <td>255.255.255.240</td>  <td>fffffff0</td>  <td>this is 1/16 of a Class C net</td></tr>
+					<tr><td>/27</td>  <td>32</td>     <td>30</td>     <td>255.255.255.224</td>  <td>ffffffe0</td>  <td>this is 1/8 of a Class C net</td></tr>
+					<tr><td>/26</td>  <td>64</td>     <td>62</td>     <td>255.255.255.192</td>  <td>ffffffc0</td>  <td>this is 1/4 of a Class C net</td></tr>
+					<tr><td>/24</td>  <td>256</td>    <td>254</td>    <td>255.255.255.0</td>    <td>ffffff00</td>  <td>this is a Class C net</td></tr>
+					<tr><td>/23</td>  <td>512</td>    <td>510</td>    <td>255.255.254.0</td>    <td>fffffe00</td>  <td>these are 2 Class C net</td></tr>
+					<tr><td>/22</td>  <td>1024</td>   <td>1022</td>   <td>255.255.252.0</td>    <td>fffffc00</td>  <td>these are 4 Class C net</td></tr>
+					<tr><td>/21</td>  <td>2048</td>   <td>2046</td>   <td>255.255.248.0</td>    <td>fffff800</td>  <td>these are 8 Class C net</td></tr>
+					<tr><td>/20</td>  <td>4096</td>   <td>4094</td>   <td>255.255.240.0</td>    <td>fffff000</td>  <td>these are 16 Class C net</td></tr>
+					<tr><td>/19</td>  <td>8192</td>   <td>8190</td>   <td>255.255.224.0</td>    <td>ffffe000</td>  <td>these are 32 Class C net</td></tr>
+					<tr><td>/18</td>  <td>16384</td>  <td>16382</td>  <td>255.255.192.0</td>    <td>ffffc000</td>  <td>these are 64 Class C net</td></tr>
+					<tr><td>/17</td>  <td>32768</td>  <td>32766</td>  <td>255.255.128.0</td>    <td>ffff8000</td>  <td>these are 128 Class C net</td></tr>
+					<tr><td>/16</td>  <td>65536</td>  <td>65534</td>  <td>255.255.0.0</td>      <td>ffff0000</td>  <td>these are 256 Class C net = Class B net</td></tr>
+				</tbody>
+				</table>
+			</div>
 
 		</div>
+
 	</div>
 	<!--end Workflow area-->
-	
-	<footer>
-		<hr/>
-		Created by rojaster, 2012
+
+
+
+	<div class="clr"></div>
+	<footer >
+		Created by rojaster, 2013
 	</footer>
 </body>
 </html>
