@@ -285,18 +285,18 @@
 			return __bSMask;
 		}
 
-		var shNum = function(mask,v,netClass){//how many subnets and hosts per sumbnet will be?
+		var shNum = function(mask,v,netClass,cidr){//how many subnets and hosts per sumbnet will be?
 			var maxBits = 32;
 			var netBits = (netClass == "A")?8:(netClass == "B")?16:24;
-			var sbnBits = mask - netBits;
-			var hostBits = maxBits - netBits - sbnBits;
+			var sbnBits = (!cidr)?(mask - netBits):0;
+			var hostBits = maxBits - mask;
 			if(v == "h") v = Math.pow(2,hostBits) - 2;
 			if(v == "s") v = Math.pow(2,sbnBits);
-			return v;
+			return (v < 1)?1:v;
 		}
 
 		var negSM = function(mask,base){ // calculate inverse subnet mask
-			var negMask ="";
+			var negMask = "";
 			mask = decSubMask(mask);
 			var arr = mask.split('.');
 			for(v in arr){
@@ -321,6 +321,47 @@
 			return negMask;
 		}
 
+		var getNA = function(ip,mask,cidr){//get a network address, use mask & ip on number of every octet
+			//set param
+			var NA = new Array();
+			mask = decSubMask(mask);
+			mask = mask.split(".")
+			for(var i = 0 ; i < 4 ; ++i){
+				if(!cidr && parseInt(mask[i],10) < 255){
+					NA[i] = 0;
+				}
+				else{
+					NA[i] = ip[i] & parseInt(mask[i],10);
+				}
+			}
+			console.log("call stack trace: getNA(...,...)");
+			return NA.join(".");
+		}
+
+		var getBroadcast = function(ip,mask,cidr){ // get a broadcast address
+			var broadcast = new Array();
+			var invMask = negSM(mask,10).split(".");
+			var netAddr = getNA(ip,mask,cidr).split(".");
+			for(var i = 0; i < 4; ++i){
+				broadcast[i] = parseInt(netAddr[i],10) + parseInt(invMask[i],10);
+			}
+			console.log("call stack trace : getBroadcast(...,...)");
+			return broadcast.join(".");
+		}
+
+		var getHostsRange = function(ip,mask,cidr){ // get range of a valid hosts for subnet and mask
+			var minAddr = new Array();
+			var maxAddr = new Array();
+			minAddr = getNA(ip,mask,cidr).split(".");
+			maxAddr = getBroadcast(ip,mask,cidr).split(".");
+			minAddr[3] = parseInt(minAddr[3],10);
+			maxAddr[3] = parseInt(maxAddr[3],10);
+			minAddr[3] += 1;
+			maxAddr[3] -= 1;
+			console.log("call stack trace: getHostsRange(...,...,...)")
+			return minAddr.join(".") + " - " + maxAddr.join(".");
+		}
+
 		var calc = function(cfrm){
 			//set parameters
 			var __ip = new Array(4);
@@ -334,7 +375,7 @@
 				console.log("IP validate error: stack trace - call __ip.every(...)");
 				return 0;
 			}
-			if(isNaN(__smask) || __smask < 8 || __smask > 32) {
+			if(isNaN(__smask) || __smask < 8 && cidr || __smask > 32) {
 					alert("Subnet mask should be over or equal 8");console.log("Invalid subnet mask"); return 0;}
 			//check CIDR checkbox anf set classful or cidr calculating
 			var __host = 32 - __smask;
@@ -371,20 +412,11 @@
 			cfrm.outinf.value += "Mask(n - net, s - subnet, h - host): " + ipSNNotation(__smask,netClass,cidr) + "\n";
 			cfrm.outinf.value += "Inverse Bit Subnet Mask: " + negSM(__smask,2) + "\n";
 			cfrm.outinf.value += "Inverse Dec Subnet Mask: " + negSM(__smask,10) + "\n";
-			cfrm.outinf.value += "Number of Subnets: "+ shNum(__smask,"s",netClass) +" \n";
-			cfrm.outinf.value += "Hosts per Subnet: " + shNum(__smask,"h",netClass) + "\n";
-			
-			/* 
-			
-			
-			
-			
-			
-			
-			cfrm.outinf.value += "Network Address: " +  + "\n";
-			cfrm.outinf.value += "Broadcast Address: " + "\n";
-			cfrm.outinf.value += "Valid Host Range: " + "\n";
-*/
+			cfrm.outinf.value += "Number of Subnets: "+ shNum(__smask,"s",netClass,cidr) +" \n";
+			cfrm.outinf.value += "Hosts per Subnet: " + shNum(__smask,"h",netClass,cidr) + "\n";
+			cfrm.outinf.value += "Network Address: " + getNA(__ip,__smask,cidr) + "\n";
+			cfrm.outinf.value += "Broadcast Address: " + getBroadcast(__ip,__smask,cidr) + "\n";
+			cfrm.outinf.value += "Valid Host Range: " + getHostsRange(__ip,__smask,cidr)+ "\n";
 			return 1;
 		}
 	</script>
@@ -393,7 +425,7 @@
 <body>
 	<header>
 		CISCO Network Tools<br/>
-		<h3> IP calc for rvawork blog</h3>
+		<!--<h3> IP calc for rvawork blog</h3>-->
 	</header>
 	
 	<hr/>
@@ -420,7 +452,7 @@
 				<input type="checkbox" name="classCheck"/>
 				&nbsp;&nbsp;&nbsp;
 				<br/>
-				<textarea cols="72" rows="15" readonly="readonly" disabled name="outinf"></textarea> 
+				<textarea cols="72" rows="16" readonly="readonly" disabled name="outinf"></textarea> 
 				</form>
 			</div>
 			<hr/>
